@@ -1,0 +1,33 @@
+#вивести різницю між загальною сумою, яку необхідно було сплатити, та сумою, яку сплатили студенти
+SELECT SUM(cost.price/2)-SUM(receipt.paid_sum)
+FROM cost JOIN( student JOIN receipt ON student.fullname = receipt.stud_name ) ON cost.spec_code=student.spec_code
+WHERE cost.degree=student.ed_degree AND cost.form=student.ed_form AND cost.spec_code=student.spec_code
+
+#вивести середню вартість навчання на магістратурі
+SELECT degree, AVG(price)
+FROM cost
+WHERE degree="магістр"
+
+
+#вивести всі розцінки на факультеті природничих наук
+SELECT specialty_name, specialty_code, degree, form, price
+FROM faculty JOIN cost ON faculty.specialty_code=cost.spec_code
+WHERE facult_name="Факультет природничих наук"
+
+
+#вивести студентів, що вчаться на спеціальності 051 на заочній формі магістратури, назву спеціальності та вартість навчання
+SELECT cost.spec_code, specialty_name, fullname, price
+FROM student JOIN (faculty JOIN cost ON faculty.specialty_code=cost.spec_code) ON student.spec_code=faculty.specialty_code
+WHERE specialty_code="051" AND degree="магістр" AND form="заочна"
+
+
+#вивести id контракту, ім'я та номер телефону платника студента Ковальчук Василь Сергійович
+SELECT contract_id ,payer_inform.payment_name, phone
+FROM student_inform JOIN (payer_inform JOIN student ON payer_inform.payment_name = student.payer_name) ON student_name=student.fullname
+WHERE student.fullname='Ковальчук Василь Сергійович'
+
+
+#вивести імена студентів, що після 2022-12-01 неоплатили навчання, чи оплатили неповну суму
+SELECT student.fullname
+FROM receipt JOIN (cost JOIN student ON cost.spec_code=student.spec_code) ON student.payer_name=receipt.pay_name
+WHERE cost.degree=student.ed_degree AND cost.form=student.ed_form AND (cost.price/2)>receipt.paid_sum AND receipt.date>'2022-12-01'
